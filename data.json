@@ -1,0 +1,9 @@
+{
+  "sectors": {
+    "A": {"name": "Containment Wing", "pop": 9},
+    "B": {"name": "Administration", "pop": 14},
+    "C": {"name": "Research Labs", "pop": 12},
+    "D": {"name": "Security & Barracks", "pop": 11}
+  },
+  "document": "Item #: SCP-[REDACTED] (working designation: LACUNA)\nObject Class: Euclid\n\nSpecial Containment Procedures: LACUNA's source is housed in Cell A-07 of the Containment Wing. The cell is to be kept free of staff entry. Cell A-07 is monitored by a sealed observation loop; the loop is to be treated as a hazard in its own right (see Addendum 1).\n\nDescription: LACUNA is an informational anomaly. Persons within the affected zone cease to exist in all records: logs, badge histories, photographs, and the memories of other staff. Physical bodies are not recovered. Affected zones expand while recording equipment inside them remains active.\n\nAddendum 1: Review of the initial incident shows the effect does not advance in zones where recording devices are offline. Loss of observation reduces situational awareness and should be weighed against containment.\n\nAddendum 2: Door authorisations are tied to personnel records. As records erode, seals on affected sectors may fail."
+}

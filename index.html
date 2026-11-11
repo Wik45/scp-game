@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site Command</title>
+<style>
+:root{--bg:#0b0e0c;--fg:#c9d6c9;--dim:#6f8070;--acc:#6fcf8a;--bad:#e0605a;--warn:#e0b05a;--card:#131815;--line:#233026}
+*{box-sizing:border-box}
+body{margin:0;padding:12px;background:var(--bg);color:var(--fg);font:14px/1.45 ui-monospace,Menlo,Consolas,monospace}
+h1{font-size:15px;margin:0 0 8px;color:var(--acc);letter-spacing:.08em}
+.bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;color:var(--dim)}
+.bar b{color:var(--fg)}
+.card{background:var(--card);border:1px solid var(--line);padding:8px;margin-bottom:8px;border-radius:4px}
+.sec.hot2{border-color:var(--warn)}.sec.hot3{border-color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+button{background:#1a231d;color:var(--fg);border:1px solid var(--line);padding:8px 10px;border-radius:4px;font:inherit}
+button:active{background:var(--acc);color:#000}
+#log{white-space:pre-wrap;color:var(--dim);max-height:200px;overflow:auto}
+#log div:last-child{color:var(--fg)}
+#doc{display:none;white-space:pre-wrap}
+.end{color:var(--acc);font-weight:bold}
+</style>
+</head>
+<body>
+<h1>SITE COMMAND // LACUNA INCIDENT</h1>
+<div id="app">Loading Python in your browser...</div>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script>
+let py;
+const $=id=>document.getElementById(id);
+async function boot(){
+  py=await loadPyodide();
+  py.globals.set("DATA_JSON",await (await fetch("data.json")).text());
+  await py.runPythonAsync((await (await fetch("game.py")).text())+"\nG=Game(json.loads(DATA_JSON))");
+  DOC=JSON.parse(py.globals.get("DATA_JSON")).document;
+  render(py.runPython("G.view()"));
+}
+let DOC="";
+function act(id){render(py.runPython("G.do("+JSON.stringify(id)+")"));}
+function render(j){
+  const s=JSON.parse(j);
+  let h='<div class="bar"><span>T<b>'+s.turn+'</b> <b>'+s.clock+'</b></span><span>Records <b>'+s.integrity+'%</b></span><span>Evacuated <b>'+s.saved+'</b></span><span>MTF <b>'+(s.mtf?'ETA T'+s.mtf:'not requested')+'</b></span></div>';
+  s.sectors.forEach(c=>{
+    const blind=c.effect===null;
+    h+='<div class="card sec hot'+(blind?0:c.effect)+'"><b>'+c.id+' - '+c.name+'</b> '+(c.sealed?'[SEALED]':'')+'<br>Effect: '+(blind?'NO FEED':c.effect+'/3')+' | Staff: '+(blind?'?':c.pop)+'<div class="row">';
+    s.actions.filter(a=>a.group===c.id).forEach(a=>h+='<button onclick="act(\''+a.id+'\')">'+a.label+'</button>');
+    h+='</div></div>';
+  });
+  const cmd=s.actions.filter(a=>a.group==="Command");
+  if(cmd.length){h+='<div class="card"><b>Command</b><div class="row">';cmd.forEach(a=>h+='<button onclick="act(\''+a.id+'\')">'+a.label+'</button>');h+='</div></div>';}
+  if(s.over)h+='<div class="card end">'+s.over+'</div>';
+  h+='<div class="card"><div id="log">'+s.log.map(l=>'<div>'+l+'</div>').join('')+'</div></div>';
+  h+='<button onclick="$(\'doc\').style.display=$(\'doc\').style.display===\'block\'?\'none\':\'block\'">SCP file</button><div class="card" id="doc">'+DOC.replace(/</g,'&lt;')+'</div>';
+  $("app").innerHTML=h;
+  const l=$("log");if(l)l.scrollTop=l.scrollHeight;
+}
+boot();
+</script>
+</body>
+</html>
